@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import VoiceOrb from "./components/VoiceOrb";
 import ChatHistory from "./components/ChatHistory";
 import Controls from "./components/Controls";
+import TranslateDropdown from "./components/TranslateDropdown";
 import { useSpeechRecognition } from "./hooks/useSpeechRecognition";
 import { useSpeechSynthesis } from "./hooks/useSpeechSynthesis";
 import { matchVoiceCommand } from "./lib/voiceCommands";
@@ -60,6 +61,18 @@ export default function Panel({ page, onClose, initialAction }) {
       persist({ paragraphIndex: i });
     },
   });
+
+  // ── Translate whole page to chosen language ──
+  const handleTranslatePage = useCallback(
+    (targetLanguage) => {
+      const snippet = page.textContent?.slice(0, 2000) || page.title || "this page";
+      runAssistant("translate", `Translate this page to ${targetLanguage}`, {
+        selectionText: snippet,
+        targetLanguage,
+      });
+    },
+    [page, runAssistant]
+  );
 
   const appendTurn = useCallback(
     (role, content) => {
@@ -290,6 +303,9 @@ export default function Panel({ page, onClose, initialAction }) {
           {busy ? "…" : "Send"}
         </button>
       </form>
+
+      {/* ── Translate Dropdown (above controls) ── */}
+      <TranslateDropdown onTranslate={handleTranslatePage} busy={busy} />
 
       {/* ── Controls ── */}
       <Controls

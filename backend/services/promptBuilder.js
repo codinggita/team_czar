@@ -103,8 +103,13 @@ Current instruction: ${instruction}`;
 }
 
 export function buildTranslationPrompt({ text, targetLanguage }) {
-  return `Translate the following text to ${targetLanguage || "English"}. Return only the
-translation, nothing else.
+  return `You are a professional translator. Translate the following text into ${targetLanguage || "English"}.
+Rules:
+- Return ONLY the translated text, nothing else.
+- Do not add any explanation, notes, or commentary.
+- Keep the original meaning and tone.
+- If a word has no direct translation, keep it as-is.
 
+Text to translate:
 """${text}"""`;
 }

@@ -419,3 +419,98 @@
   opacity: 0.5;
   padding: 6px 8px !important;
 }
+
+/* ── Translate Dropdown ── */
+.jarvis-translate-wrap {
+  position: relative;
+  padding: 0 10px 8px;
+}
+
+.jarvis-btn--translate {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(59,130,246,0.18));
+  border: 1px solid rgba(124,58,237,0.35);
+  color: #c4b5fd;
+  border-radius: 9px;
+  padding: 8px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.2px;
+}
+.jarvis-btn--translate:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(124,58,237,0.28), rgba(59,130,246,0.25));
+  transform: translateY(-1px);
+}
+.jarvis-btn--translate:disabled { opacity: 0.4; cursor: default; }
+
+.jarvis-translate-dropdown {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 10px;
+  right: 10px;
+  background: rgba(10,12,26,0.97);
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset;
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+  z-index: 10;
+  animation: dropdown-in 0.18s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)  scale(1);    }
+}
+
+.jarvis-translate-search {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding: 9px 12px;
+  color: #e8efff;
+  font-size: 12px;
+  outline: none;
+  font-family: inherit;
+}
+.jarvis-translate-search::placeholder { color: rgba(232,239,255,0.35); }
+
+.jarvis-translate-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.jarvis-translate-list::-webkit-scrollbar { width: 3px; }
+.jarvis-translate-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.jarvis-translate-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 12px;
+  background: none;
+  border: none;
+  color: #e8efff;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.1s;
+}
+.jarvis-translate-item:hover {
+  background: rgba(124,58,237,0.18);
+}
+.jarvis-translate-flag { font-size: 15px; }
+.jarvis-translate-name { font-weight: 500; flex: 1; }
+.jarvis-translate-native { font-size: 11px; color: rgba(232,239,255,0.45); }
+
+.jarvis-translate-empty {
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(232,239,255,0.4);
+}
+
