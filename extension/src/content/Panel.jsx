@@ -24,6 +24,7 @@ export default function Panel({ page, onClose, initialAction }) {
 
   // Ref used by onWakeWord to call start() without circular dependency
   const recognitionStartRef = useRef(null);
+  const handleVoiceCommandRef = useRef(null);
 
   // ── Speech Recognition (declared first — used in callbacks below) ──
   const recognition = useSpeechRecognition({
@@ -212,8 +213,9 @@ export default function Panel({ page, onClose, initialAction }) {
     [page, runAssistant, tts, recognition.lang]
   );
 
-  const handleVoiceCommandRef = useRef(handleVoiceCommand);
-  handleVoiceCommandRef.current = handleVoiceCommand;
+  useEffect(() => {
+    handleVoiceCommandRef.current = handleVoiceCommand;
+  }, [handleVoiceCommand]);
 
   const handleToggleMic  = () => recognition.listening ? recognition.stop() : recognition.start();
   const handleSwitchLang = (code) => recognition.switchLanguage(code);
