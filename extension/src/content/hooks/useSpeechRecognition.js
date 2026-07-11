@@ -46,12 +46,20 @@ export function useSpeechRecognition({ onTranscript, onWakeWord } = {}) {
 
   // ── Load persisted settings ──
   useEffect(() => {
-    storageGet(["jarvisLang", "jarvisAlwaysOn"]).then((res) => {
-      if (res.jarvisLang)    setLang(res.jarvisLang);
-      const ao = res.jarvisAlwaysOn !== false; // default true
-      setAlwaysOnEnabled(ao);
-      wakeEnabledRef.current = ao;
-    });
+    try {
+      storageGet(["jarvisLang", "jarvisAlwaysOn"])
+        .then((res) => {
+          if (res?.jarvisLang) setLang(res.jarvisLang);
+          const ao = res?.jarvisAlwaysOn !== false; // default true
+          setAlwaysOnEnabled(ao);
+          wakeEnabledRef.current = ao;
+        })
+        .catch((err) => {
+          console.warn("[Jarvis Storage] Failed to read settings:", err);
+        });
+    } catch (err) {
+      console.warn("[Jarvis Storage] Storage API not available:", err);
+    }
   }, []);
 
   // ── MAIN recognizer — re-created whenever lang changes ──
@@ -200,14 +208,22 @@ export function useSpeechRecognition({ onTranscript, onWakeWord } = {}) {
   const switchLanguage = useCallback(async (nextLang) => {
     listeningRef.current = false;
     try { recognitionRef.current?.stop(); } catch { /* ignore */ }
-    await storageSet({ jarvisLang: nextLang });
+    try {
+      await storageSet({ jarvisLang: nextLang });
+    } catch (err) {
+      console.warn("[Jarvis Storage] Failed to save language setting:", err);
+    }
     setLang(nextLang);
   }, []);
 
   const toggleAlwaysOn = useCallback(async () => {
     const next = !wakeEnabledRef.current;
     wakeEnabledRef.current = next;
-    await storageSet({ jarvisAlwaysOn: next });
+    try {
+      await storageSet({ jarvisAlwaysOn: next });
+    } catch (err) {
+      console.warn("[Jarvis Storage] Failed to save always-on setting:", err);
+    }
     setAlwaysOnEnabled(next);
     if (!next && wakeRecognitionRef.current) {
       try { wakeRecognitionRef.current.stop(); } catch { /* ignore */ }
