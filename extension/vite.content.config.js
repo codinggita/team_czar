@@ -19,6 +19,7 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: false,
     cssCodeSplit: false,
+    minify: false,
     lib: {
       entry: path.resolve(__dirname, "src/content/index.jsx"),
       name: "JarvisContent",

@@ -92,9 +92,9 @@ export default function Controls({
           id="jarvis-lang-btn"
           className="jarvis-btn jarvis-btn--lang"
           onClick={onToggleLang}
-          title={`Switch voice language (Current: ${lang === "en-US" ? "English" : "Hindi"})`}
+          title={`Switch voice language (Current: ${lang === "en-US" ? "English" : lang === "hi-IN" ? "Hindi" : "Gujarati"})`}
         >
-          {lang === "en-US" ? "EN" : "HI"}
+          {lang === "en-US" ? "EN" : lang === "hi-IN" ? "HI" : "GU"}
         </button>
       </div>
     </div>

@@ -6,7 +6,7 @@ const FEATURES = [
   { icon: "📖", label: "Read Aloud" },
   { icon: "🧠", label: "AI Summaries" },
   { icon: "🌐", label: "Translate" },
-  { icon: "💬", label: "Hindi / English" },
+  { icon: "💬", label: "Multiple Languages" },
   { icon: "🔍", label: "Explain Text" },
 ];
 

@@ -202,15 +202,20 @@ export default function Panel({ page, onClose, initialAction }) {
   handleVoiceCommandRef.current = handleVoiceCommand;
 
   const handleToggleMic  = () => recognition.listening ? recognition.stop() : recognition.start();
-  const handleToggleLang = () => recognition.switchLanguage(recognition.lang === "en-US" ? "hi-IN" : "en-US");
+  const handleToggleLang = () => {
+    const langs = ["en-US", "hi-IN", "gu-IN"];
+    const nextLang = langs[(langs.indexOf(recognition.lang) + 1) % langs.length] || "en-US";
+    recognition.switchLanguage(nextLang);
+  };
 
-  // Translate button handler — translates the current page content to English
+  // Translate button handler — translates the current page content to the selected language
   const handleTranslate = useCallback(() => {
-    runAssistant("translate", "Translate this page to English", {
+    const langName = recognition.lang === "hi-IN" ? "Hindi" : recognition.lang === "gu-IN" ? "Gujarati" : "English";
+    runAssistant("translate", `Translate this page to ${langName}`, {
       selectionText: page.textContent?.slice(0, 3000) || "",
-      targetLanguage: "English",
+      targetLanguage: langName,
     });
-  }, [runAssistant, page.textContent]);
+  }, [runAssistant, page.textContent, recognition.lang]);
 
   // Summarize button handler
   const handleSummarize = useCallback(() => {

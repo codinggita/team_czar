@@ -77,7 +77,11 @@ function ensureHost() {
 
 function togglePanel() {
   panelOpen = !panelOpen;
-  chrome.runtime.sendMessage({ type: "JARVIS_PANEL_STATE", open: panelOpen });
+  try {
+    chrome.runtime.sendMessage({ type: "JARVIS_PANEL_STATE", open: panelOpen });
+  } catch (err) {
+    console.warn("[Jarvis] Background message failed (likely context invalidated, please reload the page):", err.message);
+  }
   renderPanel();
 }
 
@@ -97,7 +101,11 @@ function renderPanel() {
       initialAction={initialAction}
       onClose={() => {
         panelOpen = false;
-        chrome.runtime.sendMessage({ type: "JARVIS_PANEL_STATE", open: false });
+        try {
+          chrome.runtime.sendMessage({ type: "JARVIS_PANEL_STATE", open: false });
+        } catch (err) {
+          console.warn("[Jarvis] Background message failed:", err.message);
+        }
         renderPanel();
       }}
     />
