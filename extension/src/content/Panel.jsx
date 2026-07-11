@@ -7,6 +7,7 @@ import { useSpeechSynthesis } from "./hooks/useSpeechSynthesis";
 import { matchVoiceCommand } from "./lib/voiceCommands";
 import { askJarvis, translateSelection } from "./lib/api";
 import { getPageState, savePageState } from "../shared/storage";
+import { getLang } from "./lib/languages";
 
 export default function Panel({ page, onClose, initialAction }) {
   const [history, setHistory]                 = useState([]);
@@ -21,6 +22,8 @@ export default function Panel({ page, onClose, initialAction }) {
   const historyRef = useRef(history);
   historyRef.current = history;
 
+  // Ref used by onWakeWord to call start() without circular dependency
+  const recognitionStartRef = useRef(null);
   const handleVoiceCommandRef = useRef(null);
 
   // ── Speech Recognition (declared first — used in callbacks below) ──
@@ -30,7 +33,14 @@ export default function Panel({ page, onClose, initialAction }) {
       const action = matchVoiceCommand(t);
       handleVoiceCommandRef.current?.(action, t);
     },
+    onWakeWord: () => {
+      // Wake word detected — start main mic immediately
+      recognitionStartRef.current?.();
+    },
   });
+
+  // Wire the start function via ref (avoids closure capture issues)
+  recognitionStartRef.current = recognition.start;
 
   // ── Load page state from storage on mount ──
   useEffect(() => {
@@ -96,7 +106,10 @@ export default function Panel({ page, onClose, initialAction }) {
         let reply;
         if (command === "translate") {
           const textToTranslate = target?.selectionText || page.textContent?.slice(0, 3000) || message;
-          const targetLang = target?.targetLanguage || "English";
+          let targetLang = target?.targetLanguage;
+          if (!targetLang || targetLang.length <= 3) {
+            targetLang = getLang(recognition.lang).name;
+          }
           const data = await translateSelection({
             text: textToTranslate,
             targetLanguage: targetLang,
@@ -205,18 +218,14 @@ export default function Panel({ page, onClose, initialAction }) {
   }, [handleVoiceCommand]);
 
   const handleToggleMic  = () => recognition.listening ? recognition.stop() : recognition.start();
-  const handleToggleLang = () => {
-    const langs = ["en-US", "hi-IN", "gu-IN"];
-    const nextLang = langs[(langs.indexOf(recognition.lang) + 1) % langs.length] || "en-US";
-    recognition.switchLanguage(nextLang);
-  };
+  const handleSwitchLang = (code) => recognition.switchLanguage(code);
 
   // Translate button handler — translates the current page content to the selected language
   const handleTranslate = useCallback(() => {
-    const langName = recognition.lang === "hi-IN" ? "Hindi" : recognition.lang === "gu-IN" ? "Gujarati" : "English";
-    runAssistant("translate", `Translate this page to ${langName}`, {
+    const langConfig = getLang(recognition.lang);
+    runAssistant("translate", `Translate this page to ${langConfig.name}`, {
       selectionText: page.textContent?.slice(0, 3000) || "",
-      targetLanguage: langName,
+      targetLanguage: langConfig.name,
     });
   }, [runAssistant, page.textContent, recognition.lang]);
 
@@ -337,8 +346,11 @@ export default function Panel({ page, onClose, initialAction }) {
         speaking={tts.speaking}
         paused={tts.paused}
         lang={recognition.lang}
+        alwaysOnEnabled={recognition.alwaysOnEnabled}
+        wakeListening={recognition.wakeListening}
         onToggleMic={handleToggleMic}
-        onToggleLang={handleToggleLang}
+        onSwitchLang={handleSwitchLang}
+        onToggleAlwaysOn={recognition.toggleAlwaysOn}
         onRead={() => tts.readParagraphs(page.paragraphs, { fromIndex: activeParagraph ?? 0, lang: recognition.lang })}
         onPause={tts.pause}
         onResume={tts.resume}
